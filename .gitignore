@@ -1,9 +1,36 @@
+# Python cache + build artefacts
 __pycache__/
 *.pyc
-.env
-.DS_Store
+*.pyo
+*.egg-info/
+dist/
+build/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
 venv/
 .venv/
-*.log
+env/
+ENV/
+
+# IDE files
+.vscode/
 .idea/
+*.swp
+*.swo
+
+# Env + secrets
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Typical input/output data (never commit customer data by accident)
 *.csv
+*.xlsx
+*.log
