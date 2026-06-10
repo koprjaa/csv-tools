@@ -14,6 +14,7 @@ def reorder_columns(
     delimiter: str = ";",
     encoding: str = "utf-8-sig",
     write_comments: bool = False,
+    sanitize_formulas: bool = False,
     logger: logging.Logger | None = None,
 ) -> int:
     """Reorder columns so `first_columns` appear first (in that order), rest kept original order.
@@ -45,7 +46,13 @@ def reorder_columns(
         rows=new_rows,
         comments=parsed.comments if write_comments else [],
     )
-    write_csv(result, output_path, delimiter=delimiter, write_comments=write_comments)
+    write_csv(
+        result,
+        output_path,
+        delimiter=delimiter,
+        write_comments=write_comments,
+        sanitize_formulas=sanitize_formulas,
+    )
     log.info(f"Wrote {len(new_rows)} rows to {output_path}")
     return len(new_rows)
 

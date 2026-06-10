@@ -1,5 +1,5 @@
 """Tests for io.read_csv / io.write_csv."""
-from csv_tools.io import ParsedCsv, read_csv, write_csv
+from csv_tools.io import ParsedCsv, read_csv, sanitize_cell, write_csv
 
 
 def _write(path, text):
@@ -81,3 +81,35 @@ def test_no_header_returns_empty(tmp_path):
     parsed = read_csv(csv_path)
     assert parsed.header == []
     assert parsed.rows == []
+
+
+def test_sanitize_cell_prefixes_formula_triggers():
+    for trigger in ("=", "+", "-", "@", "\t", "\r"):
+        assert sanitize_cell(trigger + "cmd") == "'" + trigger + "cmd"
+
+
+def test_sanitize_cell_leaves_safe_values():
+    assert sanitize_cell("Alice") == "Alice"
+    assert sanitize_cell("30") == "30"
+    assert sanitize_cell("") == ""
+
+
+def test_write_csv_default_does_not_sanitize(tmp_path):
+    out = tmp_path / "out.csv"
+    parsed = ParsedCsv(header=["a"], rows=[["=SUM(A1:A2)"]])
+    write_csv(parsed, out)
+    reloaded = read_csv(out)
+    assert reloaded.rows == [["=SUM(A1:A2)"]]  # verbatim by default
+
+
+def test_write_csv_sanitize_formulas_prefixes_risky_cells(tmp_path):
+    out = tmp_path / "out.csv"
+    parsed = ParsedCsv(
+        header=["=danger", "safe"],
+        rows=[["=SUM(A1:A2)", "ok"], ["+1", "-2"]],
+        comments=[["=evil"]],
+    )
+    write_csv(parsed, out, write_comments=True, sanitize_formulas=True)
+    lines = out.read_text(encoding="utf-8").splitlines()
+    # Every risky leading cell is prefixed with a single quote; safe cells untouched.
+    assert lines == ["'=evil", "'=danger;safe", "'=SUM(A1:A2);ok", "'+1;'-2"]
