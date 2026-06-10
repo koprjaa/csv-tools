@@ -14,6 +14,7 @@ def dedupe_by_column(
     delimiter: str = ";",
     encoding: str = "utf-8-sig",
     write_comments: bool = False,
+    sanitize_formulas: bool = False,
     logger: logging.Logger | None = None,
 ) -> tuple[int, int]:
     """Remove duplicate rows based on a key column.
@@ -63,7 +64,13 @@ def dedupe_by_column(
         rows=unique_rows,
         comments=parsed.comments if write_comments else [],
     )
-    write_csv(result, output_path, delimiter=delimiter, write_comments=write_comments)
+    write_csv(
+        result,
+        output_path,
+        delimiter=delimiter,
+        write_comments=write_comments,
+        sanitize_formulas=sanitize_formulas,
+    )
     log.info(f"Wrote {len(unique_rows)} unique rows to {output_path} (dropped {duplicates})")
     return len(unique_rows), duplicates
 

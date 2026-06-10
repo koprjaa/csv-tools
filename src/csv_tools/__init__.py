@@ -1,6 +1,6 @@
 """Small stdlib-only CLI for merging, deduplicating, and reordering CSVs."""
 from csv_tools.dedupe import dedupe_by_column
-from csv_tools.io import ParsedCsv, read_csv, write_csv
+from csv_tools.io import ParsedCsv, read_csv, sanitize_cell, write_csv
 from csv_tools.merge import merge_files
 from csv_tools.reorder import reorder_columns
 
@@ -12,5 +12,6 @@ __all__ = [
     "merge_files",
     "read_csv",
     "reorder_columns",
+    "sanitize_cell",
     "write_csv",
 ]

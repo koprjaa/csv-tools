@@ -13,6 +13,7 @@ def merge_files(
     delimiter: str = ";",
     encoding: str = "utf-8-sig",
     write_comments: bool = False,
+    sanitize_formulas: bool = False,
     logger: logging.Logger | None = None,
 ) -> int:
     """Concatenate two or more CSVs into one, preserving the header from the first file.
@@ -46,7 +47,13 @@ def merge_files(
         rows=merged_rows,
         comments=first.comments if write_comments else [],
     )
-    write_csv(result, output_path, delimiter=delimiter, write_comments=write_comments)
+    write_csv(
+        result,
+        output_path,
+        delimiter=delimiter,
+        write_comments=write_comments,
+        sanitize_formulas=sanitize_formulas,
+    )
     log.info(
         f"Merged {len(input_paths)} files → {len(merged_rows)} rows written to {output_path}"
     )

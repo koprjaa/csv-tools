@@ -36,6 +36,14 @@ def _add_common_io_args(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Preserve leading `#` comment rows in the output (default: strip)",
     )
+    parser.add_argument(
+        "--sanitize-formulas",
+        action="store_true",
+        help=(
+            "Prefix cells starting with = + - @ (or tab/CR) with a single quote to "
+            "prevent CSV/formula injection in spreadsheets (default: off, write verbatim)"
+        ),
+    )
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -94,6 +102,7 @@ def _run_merge(args: argparse.Namespace, logger: logging.Logger) -> int:
         delimiter=args.delimiter,
         encoding=args.encoding,
         write_comments=args.keep_comments,
+        sanitize_formulas=args.sanitize_formulas,
         logger=logger,
     )
     return 0
@@ -108,6 +117,7 @@ def _run_dedupe(args: argparse.Namespace, logger: logging.Logger) -> int:
         delimiter=args.delimiter,
         encoding=args.encoding,
         write_comments=args.keep_comments,
+        sanitize_formulas=args.sanitize_formulas,
         logger=logger,
     )
     return 0
@@ -121,6 +131,7 @@ def _run_reorder(args: argparse.Namespace, logger: logging.Logger) -> int:
         delimiter=args.delimiter,
         encoding=args.encoding,
         write_comments=args.keep_comments,
+        sanitize_formulas=args.sanitize_formulas,
         logger=logger,
     )
     return 0
