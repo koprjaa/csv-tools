@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    reorder.py
+#
+# Description:
+# Moves named columns to the front and leaves the rest in their original order.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Column reordering — move named columns to the front, keep the rest in original order."""
 from __future__ import annotations
 

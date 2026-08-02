@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    test_merge.py
+#
+# Description:
+# Tests for joining CSV files with matching and with mismatched headers.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Tests for merge_files."""
 import pytest
 

@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    test_dedupe.py
+#
+# Description:
+# Tests for row deduplication by column name, by index, and over the whole row.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Tests for dedupe_by_column."""
 import pytest
 

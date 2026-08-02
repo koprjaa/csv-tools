@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    test_reorder.py
+#
+# Description:
+# Tests for moving named columns to the front of each row.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Tests for reorder_columns."""
 import pytest
 

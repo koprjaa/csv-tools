@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    test_cli.py
+#
+# Description:
+# Tests for the command line interface, calling main() directly rather than spawning a process.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """End-to-end CLI tests via subprocess-free main() call."""
 import sys
 

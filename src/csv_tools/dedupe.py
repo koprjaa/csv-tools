@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    dedupe.py
+#
+# Description:
+# Removes repeated rows, keyed by a named column, a column index, or the whole row.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Row deduplication by column name or index."""
 from __future__ import annotations
 

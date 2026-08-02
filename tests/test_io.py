@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    test_io.py
+#
+# Description:
+# Tests for CSV reading and writing, including comment rows, a byte order mark, and formula quoting.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Tests for io.read_csv / io.write_csv."""
 from csv_tools.io import ParsedCsv, read_csv, sanitize_cell, write_csv
 

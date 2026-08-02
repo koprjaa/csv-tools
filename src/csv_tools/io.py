@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    io.py
+#
+# Description:
+# Shared CSV reader and writer that handles comment rows, a byte order mark, and cells a spreadsheet would run as a formula.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Shared CSV reader/writer with `#` comment handling.
 
 Comment lines (starting with `#` in the first cell) are stripped from the data

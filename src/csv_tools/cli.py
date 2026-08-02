@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    cli.py
+#
+# Description:
+# Command line interface for the merge, dedupe, and reorder subcommands.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """CLI — three subcommands: merge, dedupe, reorder."""
 from __future__ import annotations
 

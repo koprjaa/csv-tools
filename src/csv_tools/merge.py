@@ -1,3 +1,17 @@
+#
+# Project: csv-tools
+# File:    merge.py
+#
+# Description:
+# Joins several CSV files into one, keeping the header of the first file.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Merge multiple CSVs with compatible headers."""
 from __future__ import annotations
 
