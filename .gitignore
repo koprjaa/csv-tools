@@ -34,3 +34,5 @@ Thumbs.db
 *.csv
 *.xlsx
 *.log
+
+uv.lock
