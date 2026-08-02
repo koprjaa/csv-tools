@@ -35,9 +35,9 @@ def reorder_columns(
     new_order = first_indices + rest_indices
 
     new_header = [parsed.header[i] for i in new_order]
-    new_rows: list[list[str]] = []
-    for row in parsed.rows:
-        new_rows.append([row[i] if i < len(row) else "" for i in new_order])
+    new_rows: list[list[str]] = [
+        [row[i] if i < len(row) else "" for i in new_order] for row in parsed.rows
+    ]
 
     log.info(f"Reordered header: {new_header}")
 

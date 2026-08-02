@@ -33,19 +33,15 @@ def read_csv(
     with path.open("r", encoding=encoding, newline="") as f:
         all_rows = list(csv.reader(f, delimiter=delimiter))
 
-    comments: list[list[str]] = []
-    header: list[str] = []
-    data: list[list[str]] = []
-
     header_index = _find_header_index(all_rows)
     if header_index is None:
         return ParsedCsv(header=[], rows=[], comments=all_rows)
 
     comments = all_rows[:header_index]
     header = all_rows[header_index]
-    for row in all_rows[header_index + 1 :]:
-        if row and any(cell.strip() for cell in row):
-            data.append(row)
+    data = [
+        row for row in all_rows[header_index + 1 :] if row and any(cell.strip() for cell in row)
+    ]
 
     return ParsedCsv(header=header, rows=data, comments=comments)
 

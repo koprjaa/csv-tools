@@ -28,7 +28,7 @@ dependencies = []
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
-    "ruff>=0.6",
+    "ruff==0.16.1",
 ]
 
 [project.scripts]
@@ -47,8 +47,15 @@ line-length = 110
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "UP", "N"]
-ignore = ["E501"]
+select = ["E", "W", "F", "I", "B", "UP", "N", "SIM", "C4", "RET", "PTH", "TRY", "PERF", "RUF"]
+# E501  line length is handled by the formatter
+# TRY003 one exception subclass per message is ceremony
+ignore = [
+    "E501",    # line length is handled by the formatter
+    "TRY003",  # one exception subclass per message is ceremony
+    # The CLI reports an expected error to the user. A traceback is noise there.
+    "TRY400",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
