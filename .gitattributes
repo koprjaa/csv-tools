@@ -1,7 +1,6 @@
 # Project: csv-tools
 # File: .gitattributes
 # Description: Preserve fixture bytes across platforms.
-# Based on csv-tools by Jan Alexandr Kopřiva
 # Author: Jan Alexandr Kopřiva
 # License: MIT
 

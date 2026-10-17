@@ -1,7 +1,6 @@
 // Project: csv-tools
 // File: src/main.rs
 // Description: Command line interface and stdout logging.
-// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 

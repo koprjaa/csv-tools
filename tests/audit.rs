@@ -1,7 +1,6 @@
 // Project: csv-tools
 // File: tests/audit.rs
 // Description: Differential fixtures and adversarial CLI regressions.
-// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 

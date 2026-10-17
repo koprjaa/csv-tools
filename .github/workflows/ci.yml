@@ -1,7 +1,6 @@
 # Project: csv-tools
 # File: .github/workflows/ci.yml
 # Description: Validate Rust on Linux and Windows.
-# Based on csv-tools by Jan Alexandr Kopřiva
 # Author: Jan Alexandr Kopřiva
 # License: MIT
 name: CI

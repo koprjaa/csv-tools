@@ -1,7 +1,6 @@
 # Project: csv-tools
 # File: .gitignore
 # Description: Build output and local data.
-# Based on csv-tools by Jan Alexandr Kopřiva
 # Author: Jan Alexandr Kopřiva
 # License: MIT
 /target/

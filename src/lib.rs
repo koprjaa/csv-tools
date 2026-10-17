@@ -1,7 +1,6 @@
 // Project: csv-tools
 // File: src/lib.rs
 // Description: CSV compatibility and transformations.
-// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 
