@@ -1,16 +1,18 @@
 // Project: csv-tools
 // File: src/main.rs
 // Description: Command line interface and stdout logging.
+// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 
 use clap::{Args, Parser, Subcommand};
 use csv_tools::*;
-use std::path::PathBuf;
+use std::{io::Write, path::PathBuf};
 
 #[derive(Parser)]
 #[command(
     name = "csv-tools",
+    args_override_self = true,
     about = "Merge, dedupe, and reorder semicolon-delimited CSVs with optional `#` comment rows."
 )]
 struct Cli {
@@ -44,8 +46,8 @@ enum Command {
         input: PathBuf,
         #[arg(long, conflicts_with = "index")]
         column: Option<String>,
-        #[arg(long, allow_hyphen_values = true)]
-        index: Option<i64>,
+        #[arg(long, allow_hyphen_values = true, value_parser = parse_index)]
+        index: Option<String>,
         #[command(flatten)]
         io: Io,
     },
@@ -57,6 +59,52 @@ enum Command {
         io: Io,
     },
 }
+// Python accepts decimal Unicode digits, separators, and surrounding whitespace.
+fn parse_index(value: &str) -> std::result::Result<String, String> {
+    const ZEROS: &[u32] = &[
+        0x30, 0x660, 0x6f0, 0x7c0, 0x966, 0x9e6, 0xa66, 0xae6, 0xb66, 0xbe6, 0xc66, 0xce6, 0xd66,
+        0xde6, 0xe50, 0xed0, 0xf20, 0x1040, 0x1090, 0x17e0, 0x1810, 0x1946, 0x19d0, 0x1a80, 0x1a90,
+        0x1b50, 0x1bb0, 0x1c40, 0x1c50, 0xa620, 0xa8d0, 0xa900, 0xa9d0, 0xa9f0, 0xaa50, 0xabf0,
+        0xff10, 0x104a0, 0x10d30, 0x11066, 0x110f0, 0x11136, 0x111d0, 0x112f0, 0x11450, 0x114d0,
+        0x11650, 0x116c0, 0x11730, 0x118e0, 0x11950, 0x11c50, 0x11d50, 0x11da0, 0x16a60, 0x16ac0,
+        0x16b50, 0x1d7ce, 0x1d7d8, 0x1d7e2, 0x1d7ec, 0x1d7f6, 0x1e140, 0x1e2f0, 0x1e950, 0x1fbf0,
+    ];
+    let value = value.trim_matches(|c: char| c.is_whitespace() && !(''..='').contains(&c));
+    let (negative, digits) = if let Some(s) = value.strip_prefix('-') {
+        (true, s)
+    } else {
+        (false, value.strip_prefix('+').unwrap_or(value))
+    };
+    let mut out = String::new();
+    let mut previous_digit = false;
+    for c in digits.chars() {
+        if c == '_' && previous_digit {
+            previous_digit = false;
+            continue;
+        }
+        let digit = ZEROS
+            .iter()
+            .find_map(|&zero| (c as u32).checked_sub(zero).filter(|&n| n < 10));
+        if let Some(n) = digit {
+            out.push(char::from(b'0' + n as u8));
+            previous_digit = true;
+        } else {
+            return Err("invalid integer index".into());
+        }
+    }
+    if !previous_digit {
+        return Err("invalid integer index".into());
+    }
+    let significant = out.trim_start_matches('0');
+    Ok(if significant.is_empty() {
+        "0".into()
+    } else if negative {
+        format!("-{significant}")
+    } else {
+        significant.into()
+    })
+}
+
 fn log(level: &str, threshold: &str, message: impl AsRef<str>) {
     let rank = |s| match s {
         "DEBUG" => 0,
@@ -65,7 +113,9 @@ fn log(level: &str, threshold: &str, message: impl AsRef<str>) {
         _ => 3,
     };
     if rank(level) >= rank(threshold) {
-        println!(
+        // A closed logging pipe must not interrupt the CSV transformation.
+        let _ = writeln!(
+            std::io::stdout().lock(),
             "{} [{level}] {}",
             chrono::Local::now().format("%H:%M:%S"),
             message.as_ref()
@@ -127,7 +177,19 @@ fn run(cli: &Cli) -> Result<()> {
                 Some(find_column(&parsed.header, name)?)
             } else {
                 index
-                    .map(|i| resolve_index(&parsed.header, i))
+                    .as_ref()
+                    .map(|value| {
+                        value
+                            .parse::<usize>()
+                            .ok()
+                            .filter(|&i| i < parsed.header.len())
+                            .ok_or_else(|| {
+                                format!(
+                                    "Column index {value} out of range (header has {} columns)",
+                                    parsed.header.len()
+                                )
+                            })
+                    })
                     .transpose()?
             };
             let key = index

@@ -1,3 +1,10 @@
+// Project: csv-tools
+// File: tests/encoding.rs
+// Description: Encoding parity regression tests.
+// Based on csv-tools by Jan Alexandr Kopřiva
+// Author: Jan Alexandr Kopřiva
+// License: MIT
+
 use csv_tools::read_csv;
 use std::{fs, path::Path, process::Command};
 

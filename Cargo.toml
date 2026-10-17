@@ -1,3 +1,10 @@
+# Project: csv-tools
+# File: Cargo.toml
+# Description: Rust package and dependency configuration.
+# Based on csv-tools by Jan Alexandr Kopřiva
+# Author: Jan Alexandr Kopřiva
+# License: MIT
+
 [package]
 name = "csv-tools"
 version = "0.2.0"

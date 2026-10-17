@@ -1,6 +1,7 @@
 # Project: csv-tools
 # File: .gitignore
 # Description: Build output and local data.
+# Based on csv-tools by Jan Alexandr Kopřiva
 # Author: Jan Alexandr Kopřiva
 # License: MIT
 /target/
@@ -14,6 +15,7 @@ Thumbs.db
 *.csv
 *.xlsx
 *.log
+!tests/fixtures/*.csv
 __pycache__/
 *.pyc
 *.pyo
@@ -30,4 +32,3 @@ venv/
 env/
 ENV/
 uv.lock
-!tests/fixtures/*.csv

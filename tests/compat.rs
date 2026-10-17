@@ -1,6 +1,7 @@
 // Project: csv-tools
 // File: tests/compat.rs
 // Description: Regression equivalents of the original tests and CLI edge cases.
+// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 

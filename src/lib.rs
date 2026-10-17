@@ -1,6 +1,7 @@
 // Project: csv-tools
 // File: src/lib.rs
 // Description: CSV compatibility and transformations.
+// Based on csv-tools by Jan Alexandr Kopřiva
 // Author: Jan Alexandr Kopřiva
 // License: MIT
 
@@ -36,7 +37,63 @@ pub fn read_csv(path: &Path, delimiter: char, encoding: &str) -> Result<ParsedCs
             e.to_string()
         }
     })?;
-    let label = encoding.trim().to_ascii_lowercase().replace('_', "-");
+    let label = encoding
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join("-")
+        .to_ascii_lowercase();
+    let ascii = matches!(
+        label.as_str(),
+        "ascii"
+            | "us-ascii"
+            | "646"
+            | "ansi-x3-4-1968"
+            | "ansi-x3-4-1986"
+            | "cp367"
+            | "csascii"
+            | "ibm367"
+            | "iso646-us"
+            | "iso-646-irv-1991"
+            | "iso-ir-6"
+            | "us"
+    );
+    let latin1 = matches!(
+        label.as_str(),
+        "latin1"
+            | "latin-1"
+            | "iso-8859-1"
+            | "iso8859-1"
+            | "l1"
+            | "8859"
+            | "cp819"
+            | "csisolatin1"
+            | "ibm819"
+            | "iso8859"
+            | "iso-8859-1-1987"
+            | "iso-ir-100"
+            | "latin"
+    );
+    // WHATWG aliases these codecs to Windows-1252, which changes valid data.
+    if ascii || latin1 {
+        if ascii {
+            if let Some(position) = bytes.iter().position(|b| !b.is_ascii()) {
+                return Err(format!(
+                    "Cannot decode {} as {encoding}: invalid byte at position {position}",
+                    path.display()
+                ));
+            }
+        }
+        let text: String = bytes.iter().map(|&b| char::from(b)).collect();
+        return parse_csv(&text, delimiter);
+    }
+    let label = match label.as_str() {
+        "utf16" => "utf-16",
+        "utf8" | "cp65001" => "utf-8",
+        "utf16le" | "utf-16-le" => "utf-16le",
+        "utf16be" | "utf-16-be" => "utf-16be",
+        _ => &label,
+    };
     let sig = label == "utf-8-sig";
     let mut enc = encoding_rs::Encoding::for_label(if sig { b"utf-8" } else { label.as_bytes() })
         .ok_or_else(|| format!("unknown encoding: {encoding}"))?;
@@ -131,9 +188,11 @@ pub fn parse_csv(text: &str, delimiter: char) -> Result<ParsedCsv> {
     let mut cell = String::new();
     let mut field_chars = 0usize;
     let mut quoted = false;
+    let mut after_quote = false;
     let mut start = true;
     let mut active = false;
     while let Some(c) = chars.next() {
+        let was_after_quote = std::mem::take(&mut after_quote);
         if quoted {
             if c == '"' {
                 if chars.peek() == Some(&'"') {
@@ -142,6 +201,7 @@ pub fn parse_csv(text: &str, delimiter: char) -> Result<ParsedCsv> {
                     field_chars += 1;
                 } else {
                     quoted = false;
+                    after_quote = true;
                 }
             } else {
                 cell.push(c);
@@ -151,11 +211,20 @@ pub fn parse_csv(text: &str, delimiter: char) -> Result<ParsedCsv> {
             quoted = true;
             start = false;
             active = true;
-        } else if c == delimiter {
+        } else if c == delimiter && (!matches!(c, '\r' | '\n') || was_after_quote) {
             row.push(std::mem::take(&mut cell));
             field_chars = 0;
             start = true;
             active = true;
+            // TextIO ends the physical line even when its terminator is a delimiter.
+            if matches!(c, '\r' | '\n') {
+                row.push(String::new());
+                records.push(std::mem::take(&mut row));
+                active = false;
+                if c == '\r' && chars.peek() == Some(&'\n') {
+                    chars.next();
+                }
+            }
         } else if c == '\r' || c == '\n' {
             if c == '\r' && chars.peek() == Some(&'\n') {
                 chars.next();

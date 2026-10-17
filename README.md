@@ -86,11 +86,15 @@ CSV output uses CRLF, minimal quoting, doubled quotes, and UTF-8 without BOM. Th
 ## Changes from the Python version
 
 - The executable and Rust library replace the Python package, Python imports, and `python -m csv_tools` entry point. Rust helpers use `Result` errors rather than Python exceptions.
-- CLI help, usage, and argument-error text come from clap instead of argparse. Argparse's abbreviated long options are unsupported. Index arguments are signed 64-bit integers rather than arbitrary-size integers.
-- Input encoding labels follow encoding_rs / WHATWG, rather than Python codecs. Unsupported Python codecs (for example UTF-32) are rejected. Some labels have WHATWG semantics: ISO-8859-1 and ASCII map to Windows-1252. Generic `utf-16` negotiates byte order from a required BOM (empty input is accepted); explicit `utf-16le` / `utf-16be` retain their byte order and BOM as data. Invalid byte sequences and undefined Python charmap entries in Windows-1250–1258, Windows-874, and ISO-8859-3/6/7/8 are rejected with the input filename and a zero-based byte position in the original file. In particular, cp1250 rejects `81 83 88 90 98` and cp1252 rejects `81 8D 8F 90 9D` (hex); ISO-8859-2 defines every byte. UTF-8 is strict; `utf-8-sig` strips only an initial UTF-8 BOM. This does not detect a wrongly selected encoding when all bytes are valid in it. Error wording differs from Python.
+- CLI help, usage, and argument-error text come from clap instead of argparse. Argparse's abbreviated long options are unsupported. Index arguments accept signs, surrounding whitespace, underscores between decimal digits, and Unicode decimal digits. Arbitrarily large indices are reported as out of range without integer overflow; unlike recent Python versions, Rust does not impose Python’s configurable decimal conversion digit limit.
+- Input encoding labels follow encoding_rs / WHATWG, rather than Python codecs. Unsupported Python codecs (for example UTF-32) are rejected. ASCII and Latin-1 (including their standard aliases) retain Python semantics: strict 7-bit ASCII and direct byte-to-Unicode Latin-1. Other codecs retain encoding_rs / WHATWG semantics, which can differ from Python for legacy and multibyte encodings; not every Python codec alias is available. Labels normalize case and runs of punctuation or spaces; UTF-8 BOM and UTF-16 aliases are handled explicitly. Generic `utf-16` negotiates byte order from a required BOM (empty input is accepted); explicit `utf-16le` / `utf-16be` retain their byte order and BOM as data. Invalid byte sequences and undefined Python charmap entries in Windows-1250–1258, Windows-874, and ISO-8859-3/6/7/8 are rejected with the input filename and a zero-based byte position in the original file. In particular, cp1250 rejects `81 83 88 90 98` and cp1252 rejects `81 8D 8F 90 9D` (hex); ISO-8859-2 defines every byte. UTF-8 is strict; `utf-8-sig` strips only an initial UTF-8 BOM. This does not detect a wrongly selected encoding when all bytes are valid in it. Error wording differs from Python.
 - File-system errors other than missing input and CSV decoding errors are reported as stdout error messages with exit code 2 instead of Python tracebacks. Unknown encoding labels also produce a logged error with exit code 2 instead of a LookupError traceback with exit code 1. Invalid delimiters are CLI argument errors. CSV field-limit errors are reported with exit code 2 instead of a traceback and exit code 1.
 - Unicode whitespace follows Rust's Unicode tables with Python's additional ASCII information separators; Unicode-version differences can affect newly assigned characters. Diagnostic quoting of unusual nonprinting Unicode characters can differ.
 - Output CSV encoding remains UTF-8 without BOM for every subcommand, including when a different input encoding is selected. This preserves the original implementation.
+- Repeated scalar CLI options use the last value, repeated boolean flags are accepted, and repeated `--first` options append, matching Python. Clap accepts `--help` in addition to `-h`; its detailed option/value parsing and placement rules differ from argparse.
+- Closed or failing stdout logging streams no longer panic: CSV work completes and logging write errors are ignored. Python emits logging tracebacks and can exit 120 on shutdown after a broken pipe. CSV output write failures still return exit code 2.
+- Rust library helpers operate on `ParsedCsv` in memory; Python’s path-based transformation helpers, optional logger, configurable writer encoding, and mutable global CSV field limit are not exposed. Rust always writes UTF-8 and enforces 131072 Unicode characters per field.
+- Non-UTF-8 command-line option values are rejected by clap; filesystem paths use native Rust paths. Displayed paths may preserve `./` or use replacement characters where Python normalizes paths or uses surrogate escapes.
 - Files remain in memory as in the original implementation; output is buffered and written record by record. No streaming-input guarantee is added.
 
 ## Dependencies
@@ -107,6 +111,10 @@ cargo test
 ```
 
 CI runs formatting, clippy, and tests on stable Rust on Linux and Windows.
+
+## Origin
+
+Based on [csv-tools](https://github.com/koprjaa/csv-tools) by Jan Alexandr Kopřiva. This Rust implementation preserves the original project attribution and MIT copyright.
 
 ## License
 
