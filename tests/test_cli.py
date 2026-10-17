@@ -13,6 +13,7 @@
 #
 
 """End-to-end CLI tests via subprocess-free main() call."""
+
 import sys
 
 import pytest

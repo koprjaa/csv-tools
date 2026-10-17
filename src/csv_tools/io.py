@@ -17,6 +17,7 @@
 Comment lines (starting with `#` in the first cell) are stripped from the data
 area but preserved so the output can optionally round-trip them back.
 """
+
 from __future__ import annotations
 
 import csv
@@ -53,9 +54,7 @@ def read_csv(
 
     comments = all_rows[:header_index]
     header = all_rows[header_index]
-    data = [
-        row for row in all_rows[header_index + 1 :] if row and any(cell.strip() for cell in row)
-    ]
+    data = [row for row in all_rows[header_index + 1 :] if row and any(cell.strip() for cell in row)]
 
     return ParsedCsv(header=header, rows=data, comments=comments)
 

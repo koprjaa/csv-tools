@@ -13,6 +13,7 @@
 #
 
 """CLI — three subcommands: merge, dedupe, reorder."""
+
 from __future__ import annotations
 
 import argparse
@@ -31,9 +32,7 @@ def _setup_logging(level: str) -> logging.Logger:
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
-    )
+    handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"))
     logger.addHandler(handler)
     return logger
 
@@ -74,9 +73,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     # merge
-    p_merge = sub.add_parser(
-        "merge", help="Concatenate two or more CSVs (header taken from the first)"
-    )
+    p_merge = sub.add_parser("merge", help="Concatenate two or more CSVs (header taken from the first)")
     p_merge.add_argument("inputs", type=Path, nargs="+", help="Input CSV files (2 or more)")
     p_merge.add_argument("-o", "--output", type=Path, required=True, help="Output CSV file")
     _add_common_io_args(p_merge)

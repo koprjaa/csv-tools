@@ -13,6 +13,7 @@
 #
 
 """Row deduplication by column name or index."""
+
 from __future__ import annotations
 
 import logging

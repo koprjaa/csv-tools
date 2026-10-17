@@ -13,6 +13,7 @@
 #
 
 """Tests for dedupe_by_column."""
+
 import pytest
 
 from csv_tools.dedupe import dedupe_by_column

@@ -13,6 +13,7 @@
 #
 
 """Tests for merge_files."""
+
 import pytest
 
 from csv_tools.io import read_csv

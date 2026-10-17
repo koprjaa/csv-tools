@@ -13,6 +13,7 @@
 #
 
 """Tests for reorder_columns."""
+
 import pytest
 
 from csv_tools.io import read_csv

@@ -13,6 +13,7 @@
 #
 
 """Merge multiple CSVs with compatible headers."""
+
 from __future__ import annotations
 
 import logging
@@ -68,7 +69,5 @@ def merge_files(
         write_comments=write_comments,
         sanitize_formulas=sanitize_formulas,
     )
-    log.info(
-        f"Merged {len(input_paths)} files → {len(merged_rows)} rows written to {output_path}"
-    )
+    log.info(f"Merged {len(input_paths)} files → {len(merged_rows)} rows written to {output_path}")
     return len(merged_rows)

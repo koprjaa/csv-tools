@@ -13,6 +13,7 @@
 #
 
 """Tests for io.read_csv / io.write_csv."""
+
 from csv_tools.io import ParsedCsv, read_csv, sanitize_cell, write_csv
 
 
