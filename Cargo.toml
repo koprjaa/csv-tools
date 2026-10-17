@@ -11,7 +11,7 @@ version = "0.2.0"
 edition = "2021"
 license = "MIT"
 authors = ["Jan Alexandr Kopřiva"]
-description = "Merge, deduplicate, and reorder CSV files"
+description = "Merge, deduplicate and reorder CSV files from the command line."
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
