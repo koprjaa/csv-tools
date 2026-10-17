@@ -1,0 +1,9 @@
+﻿# generated: x
+# src: ARES
+IČ firmy;Název;Sídlo
+12345678;"Acme; s.r.o.";Praha
+87654321;"Multi
+line";Brno
+;;
+12345678;Dup;Plzeň
+=1+1;@x;-3

@@ -1,8 +1,8 @@
 # csv-tools
 
-Command line tool that merges, deduplicates, and reorders CSV files. It reads files that start with `#` comment rows. It uses the Python standard library only.
+Command line tool that merges, deduplicates, and reorders CSV files. It reads files that start with `#` comment rows. It is implemented in Rust.
 
-![python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![rust](https://img.shields.io/badge/rust-stable-DEA584?style=flat-square&logo=rust&logoColor=white)
 ![license](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)
 ![status](https://img.shields.io/badge/status-stable-22863A?style=flat-square)
 [![ci](https://github.com/koprjaa/csv-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/koprjaa/csv-tools/actions/workflows/ci.yml)
@@ -23,8 +23,7 @@ All three subcommands find the first row that does not start with `#` and use it
 ## Install
 
 ```bash
-uv venv
-uv pip install -e .
+cargo install --path .
 csv-tools --help
 ```
 
@@ -59,7 +58,7 @@ csv-tools dedupe merged.csv -o unique.csv --column "IČ firmy" && \
 csv-tools reorder unique.csv -o final.csv --first "IČ firmy"
 ```
 
-`python -m csv_tools <subcommand>` does the same as `csv-tools <subcommand>`.
+Logs use local time and are written to stdout as `HH:MM:SS [LEVEL] message`. Put `--log-level` before the subcommand.
 
 ## Options
 
@@ -72,45 +71,42 @@ These flags work with all three subcommands.
 | `--keep-comments` | off | Copy `#` rows to the output. |
 | `--log-level <level>` | `INFO` | One of DEBUG, INFO, WARNING, ERROR. |
 
-## Library use
+## CSV semantics
 
-```python
-from pathlib import Path
-from csv_tools import merge_files, dedupe_by_column, reorder_columns
+Leading blank records, single whitespace cells, and records whose trimmed first cell starts with `#` precede the header. A record with multiple empty fields can be the header. After the header, entirely blank or whitespace-only records are dropped; comment records remain data. Merge retains only the first input's leading comments and warns about incompatible headers without rearranging data. One input to merge is accepted.
 
-merge_files([Path("jan.csv"), Path("feb.csv")], Path("q1.csv"))
-dedupe_by_column(Path("q1.csv"), Path("q1-unique.csv"), column="IČ firmy")
-reorder_columns(Path("q1-unique.csv"), Path("q1-final.csv"), first_columns=["IČ firmy"])
-```
+Dedupe retains the first occurrence. Column keys are trimmed; empty or missing keys are dropped and counted as duplicates. Full-row comparison preserves whitespace. Reorder repeats columns when `--first` repeats, pads missing cells, and discards cells beyond the header width.
 
-Each function accepts `delimiter`, `encoding`, `write_comments`, and `logger`.
+CSV output uses CRLF, minimal quoting, doubled quotes, and UTF-8 without BOM. The `--encoding` option controls input only, matching the original command behavior. Default `utf-8-sig` removes a UTF-8 BOM; explicit `utf-8` preserves it. Formula sanitization applies to comments, headers, and data.
 
-## How it works
+| Flag | Default | Effect |
+|---|---|---|
+| `--sanitize-formulas` | off | Prefix cells starting with `= + - @`, tab, or CR with a single quote. |
 
-```
-src/csv_tools/
-  io.py         ParsedCsv dataclass, read_csv and write_csv with comment handling
-  merge.py      merge_files(inputs, output)
-  dedupe.py     dedupe_by_column(input, output, column=name or index or None)
-  reorder.py    reorder_columns(input, output, first_columns=[...])
-  cli.py        argparse subcommands
-  __main__.py   entry point for python -m csv_tools
-```
+## Changes from the Python version
 
-## Limits
+- The executable and Rust library replace the Python package, Python imports, and `python -m csv_tools` entry point. Rust helpers use `Result` errors rather than Python exceptions.
+- CLI help, usage, and argument-error text come from clap instead of argparse. Argparse's abbreviated long options are unsupported. Index arguments are signed 64-bit integers rather than arbitrary-size integers.
+- Input encoding labels follow encoding_rs / WHATWG, rather than Python codecs. Unsupported Python codecs (for example UTF-32) are rejected. Some labels have WHATWG semantics: ISO-8859-1 and ASCII map to Windows-1252. Generic `utf-16` negotiates byte order from a required BOM (empty input is accepted); explicit `utf-16le` / `utf-16be` retain their byte order and BOM as data. Invalid byte sequences and undefined Python charmap entries in Windows-1250–1258, Windows-874, and ISO-8859-3/6/7/8 are rejected with the input filename and a zero-based byte position in the original file. In particular, cp1250 rejects `81 83 88 90 98` and cp1252 rejects `81 8D 8F 90 9D` (hex); ISO-8859-2 defines every byte. UTF-8 is strict; `utf-8-sig` strips only an initial UTF-8 BOM. This does not detect a wrongly selected encoding when all bytes are valid in it. Error wording differs from Python.
+- File-system errors other than missing input and CSV decoding errors are reported as stdout error messages with exit code 2 instead of Python tracebacks. Unknown encoding labels also produce a logged error with exit code 2 instead of a LookupError traceback with exit code 1. Invalid delimiters are CLI argument errors. CSV field-limit errors are reported with exit code 2 instead of a traceback and exit code 1.
+- Unicode whitespace follows Rust's Unicode tables with Python's additional ASCII information separators; Unicode-version differences can affect newly assigned characters. Diagnostic quoting of unusual nonprinting Unicode characters can differ.
+- Output CSV encoding remains UTF-8 without BOM for every subcommand, including when a different input encoding is selected. This preserves the original implementation.
+- Files remain in memory as in the original implementation; output is buffered and written record by record. No streaming-input guarantee is added.
 
-The tool holds one file in memory at a time. It does not stream. Very large files need a different approach.
+## Dependencies
+
+`clap` provides CLI parsing and validation; `encoding_rs` decodes input labels; `chrono` formats local log timestamps. The test-only `tempfile` isolates test data. CSV parsing and writing use the standard library to preserve blank records, Unicode delimiters, and permissive Python quoting.
 
 ## Development
 
 ```bash
-uv venv
-uv pip install -e ".[dev]"
-pytest -q
-ruff check .
+cargo build --release
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test
 ```
 
-CI runs ruff and pytest on Python 3.10, 3.11, and 3.12, on Linux and Windows.
+CI runs formatting, clippy, and tests on stable Rust on Linux and Windows.
 
 ## License
 

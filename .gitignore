@@ -1,4 +1,19 @@
-# Python cache + build artefacts
+# Project: csv-tools
+# File: .gitignore
+# Description: Build output and local data.
+# Author: Jan Alexandr Kopřiva
+# License: MIT
+/target/
+.vscode/
+.idea/
+*.swp
+*.swo
+.env
+.DS_Store
+Thumbs.db
+*.csv
+*.xlsx
+*.log
 __pycache__/
 *.pyc
 *.pyo
@@ -10,29 +25,9 @@ build/
 htmlcov/
 .pytest_cache/
 .ruff_cache/
-
-# Virtual environments
 venv/
 .venv/
 env/
 ENV/
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Env + secrets
-.env
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Typical input/output data (never commit customer data by accident)
-*.csv
-*.xlsx
-*.log
-
 uv.lock
+!tests/fixtures/*.csv

@@ -1,0 +1,15 @@
+[package]
+name = "csv-tools"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+authors = ["Jan Alexandr Kopřiva"]
+description = "Merge, deduplicate, and reorder CSV files"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+encoding_rs = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+[dev-dependencies]
+tempfile = "3"
