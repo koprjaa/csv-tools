@@ -174,7 +174,7 @@ pub fn read_csv(path: &Path, delimiter: char, encoding: &str) -> Result<ParsedCs
 }
 
 // Python also treats the four ASCII information separators as whitespace.
-fn python_trim(s: &str) -> &str {
+pub fn python_trim(s: &str) -> &str {
     s.trim_matches(|c: char| c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c))
 }
 
@@ -373,10 +373,13 @@ pub fn dedupe(parsed: &mut ParsedCsv, index: Option<usize>) -> (usize, usize) {
     (parsed.rows.len(), count - parsed.rows.len())
 }
 pub fn reorder(parsed: &mut ParsedCsv, first: &[String]) -> Result<()> {
-    let mut order = first
-        .iter()
-        .map(|c| find_column(&parsed.header, c))
-        .collect::<Result<Vec<_>>>()?;
+    let mut order = Vec::new();
+    for c in first {
+        let i = find_column(&parsed.header, c)?;
+        if !order.contains(&i) {
+            order.push(i);
+        }
+    }
     let rest = (0..parsed.header.len())
         .filter(|i| !order.contains(i))
         .collect::<Vec<_>>();

@@ -325,8 +325,8 @@ fn quoting_blank_records_and_comments_inside_data() {
 fn repeated_first_and_long_rows() {
     let mut p = parse("a;b\nx;y;z");
     reorder(&mut p, &["b".into(), "b".into()]).unwrap();
-    assert_eq!(p.header, ["b", "b", "a"]);
-    assert_eq!(p.rows, [vec!["y", "y", "x"]]);
+    assert_eq!(p.header, ["b", "a"]);
+    assert_eq!(p.rows, [vec!["y", "x"]]);
 }
 #[test]
 fn whitespace_keys_and_missing_cells() {
@@ -404,4 +404,33 @@ fn field_limit_and_python_whitespace() {
     assert!(parse_csv(&format!("a\n{}", "x".repeat(131073)), ';').is_err());
     let mut p = parse("a;b\nx;\u{1c}1\u{1f}\ny;1");
     assert_eq!(dedupe(&mut p, Some(1)), (1, 1));
+}
+#[test]
+fn merge_matches_reordered_columns_by_name() {
+    let s = success(
+        &[("a", "name;age\nAlice;30"), ("b", "age;name\n25;Bob")],
+        &["merge", "a", "b", "-o", "out"],
+    );
+    assert_eq!(parse(&s).rows, [vec!["Alice", "30"], vec!["Bob", "25"]]);
+}
+#[test]
+fn reorder_ignores_a_repeated_first_column() {
+    let s = success(
+        &[("in", "a;b;c\n1;2;3")],
+        &["reorder", "in", "--first", "b", "--first", "b", "-o", "out"],
+    );
+    let p = parse(&s);
+    assert_eq!(p.header, ["b", "a", "c"]);
+    assert_eq!(p.rows, [vec!["2", "1", "3"]]);
+}
+#[test]
+fn dedupe_warns_about_rows_with_an_empty_key() {
+    let (o, s) = cli(
+        &[("in", "id;v\n;x\n1;y")],
+        &["dedupe", "in", "--column", "id", "-o", "out"],
+    );
+    assert!(String::from_utf8(o.stdout)
+        .unwrap()
+        .contains("[WARNING] 1 rows with an empty key are dropped"));
+    assert_eq!(parse(&s).rows, [vec!["1", "y"]]);
 }

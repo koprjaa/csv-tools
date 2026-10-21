@@ -104,6 +104,22 @@ fn parse_index(value: &str) -> std::result::Result<String, String> {
     })
 }
 
+/// For a header holding the same unique names as `first` in another order,
+/// the index in `other` of each column of `first`.
+fn same_columns(first: &Row, other: &Row) -> Option<Vec<usize>> {
+    if first.len() != other.len() {
+        return None;
+    }
+    let order: Vec<usize> = first
+        .iter()
+        .map(|name| other.iter().position(|c| c == name))
+        .collect::<Option<_>>()?;
+    let mut seen = order.clone();
+    seen.sort_unstable();
+    seen.dedup();
+    (seen.len() == order.len()).then_some(order)
+}
+
 fn log(level: &str, threshold: &str, message: impl AsRef<str>) {
     let rank = |s| match s {
         "DEBUG" => 0,
@@ -142,6 +158,19 @@ fn run(cli: &Cli) -> Result<()> {
             }
             for (p, other) in inputs[1..].iter().zip(files) {
                 if other.header != first.header {
+                    if let Some(order) = same_columns(&first.header, &other.header) {
+                        info(format!(
+                            "Columns of {} are in another order: matching them by name",
+                            p.display()
+                        ));
+                        first.rows.extend(other.rows.into_iter().map(|row| {
+                            order
+                                .iter()
+                                .map(|&i| row.get(i).cloned().unwrap_or_default())
+                                .collect()
+                        }));
+                        continue;
+                    }
                     log(
                         "WARNING",
                         &cli.log_level,
@@ -195,6 +224,20 @@ fn run(cli: &Cli) -> Result<()> {
                 .map(|i| format!("column index {i} ({})", repr(&parsed.header[i])))
                 .unwrap_or("full row".into());
             info(format!("Deduping {} rows by {key}", parsed.rows.len()));
+            if let Some(i) = index {
+                let blank = parsed
+                    .rows
+                    .iter()
+                    .filter(|row| row.get(i).is_none_or(|v| python_trim(v).is_empty()))
+                    .count();
+                if blank > 0 {
+                    log(
+                        "WARNING",
+                        &cli.log_level,
+                        format!("{blank} rows with an empty key are dropped"),
+                    );
+                }
+            }
             let (unique, dropped) = dedupe(&mut parsed, index);
             format!(
                 "Wrote {unique} unique rows to {} (dropped {dropped})",
