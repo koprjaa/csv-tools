@@ -2,8 +2,7 @@
 // File: tests/encoding.rs
 // Description: Encoding parity regression tests.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use csv_tools::read_csv;
 use std::{fs, path::Path, process::Command};
 

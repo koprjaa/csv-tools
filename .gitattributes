@@ -2,7 +2,6 @@
 # File: .gitattributes
 # Description: Preserve fixture bytes across platforms.
 # Author: Jan Alexandr Kopřiva
-# License: MIT
-
+# License: AGPL-3.0-or-later
 # Fixtures are compared byte for byte; keep line endings as committed.
 tests/fixtures/** -text

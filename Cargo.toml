@@ -2,13 +2,12 @@
 # File: Cargo.toml
 # Description: Rust package and dependency configuration.
 # Author: Jan Alexandr Kopřiva
-# License: MIT
-
+# License: AGPL-3.0-or-later
 [package]
 name = "csv-tools"
 version = "0.2.0"
 edition = "2021"
-license = "MIT"
+license = "AGPL-3.0-or-later"
 authors = ["Jan Alexandr Kopřiva"]
 description = "Merge, deduplicate and reorder CSV files from the command line."
 

@@ -2,8 +2,7 @@
 // File: tests/compat.rs
 // Description: Regression equivalents of the original tests and CLI edge cases.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use csv_tools::*;
 use std::{fs, process::Command};
 fn parse(s: &str) -> ParsedCsv {

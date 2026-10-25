@@ -3,7 +3,7 @@
 Merge, deduplicate and reorder CSV files from the command line.
 
 [![ci](https://github.com/koprjaa/csv-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/koprjaa/csv-tools/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)](LICENSE)
+[![license](https://img.shields.io/badge/license-AGPL--3.0-A31F34?style=flat-square)](LICENSE)
 
 ## Commands
 
@@ -31,4 +31,4 @@ Run `csv-tools --help` for the full option list.
 
 ## License
 
-[MIT](LICENSE)
+[AGPL-3.0-or-later](LICENSE)

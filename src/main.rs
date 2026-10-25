@@ -2,8 +2,7 @@
 // File: src/main.rs
 // Description: Command line interface and stdout logging.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use clap::{Args, Parser, Subcommand};
 use csv_tools::*;
 use std::{io::Write, path::PathBuf};
